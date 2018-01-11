@@ -1,0 +1,43 @@
+{
+  "name":         "evozon-php/tissue-clamav-adapter",
+  "type":         "library",
+  "description":  "Slight variation of the original cleentfaar/tissue-clamav-adapter",
+  "keywords":     [
+    "tissue",
+    "anti-virus",
+    "virus",
+    "clamav",
+    "security"
+  ],
+  "homepage":     "http://evozon.com",
+  "license":      "proprietary",
+  "authors": [
+    {
+      "name": "Cas Leentfaar",
+      "homepage": "https://github.com/cleentfaar",
+      "email": "info@casleentfaar.com"
+    },
+    {
+      "name": "Balazs Csaba",
+      "homepage": "http://evozon.com",
+      "email": "csaba.balazs@evozon.com"
+    }
+  ],
+  "require":      {
+    "php": ">=7.1",
+    "evozon-php/tissue": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.0"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "autoload":     {
+    "psr-4": {
+      "CL\\Tissue\\Adapter\\ClamAv\\": ""
+    }
+  },
+  "config": {
+    "bin-dir": "bin"
+  }
+}
