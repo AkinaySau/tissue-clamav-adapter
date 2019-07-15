@@ -40,11 +40,15 @@ class ClamAvAdapter extends AbstractAdapter
 
     /**
      * {@inheritdoc}
+     *
      * @throws \CL\Tissue\Exception\AdapterException
      */
     protected function detect(string $path): ?Detection
     {
-        $process = $this->createProcess($path);
+        $process = $this->createProcess(
+            $this->prepareCommand($path)
+        );
+
         $returnCode = $process->run();
         $output = trim($process->getOutput());
         if (0 !== $returnCode && false === strpos($output, ' FOUND')) {
@@ -52,7 +56,7 @@ class ClamAvAdapter extends AbstractAdapter
         }
 
         foreach (explode("\n", $output) as $line) {
-            if (substr($line, -6) === ' FOUND') {
+            if (' FOUND' === substr($line, -6)) {
                 $file = substr($line, 0, strrpos($line, ':'));
                 $description = substr(substr($line, strrpos($line, ':') + 2), 0, -6);
 
@@ -64,26 +68,29 @@ class ClamAvAdapter extends AbstractAdapter
     }
 
     /**
+     * Prepare the process command.
+     *
      * @param string $path
      *
-     * @return Process
+     * @return array
      */
-    private function createProcess(string $path): Process
+    private function prepareCommand(string $path): array
     {
-        $pb = $this->createProcessBuilder([$this->clamScanPath]);
-        $pb->add('--no-summary');
+        $cmd = [
+            $this->clamScanPath,
+            '--no-summary',
+        ];
 
         if ($this->usesDaemon($this->clamScanPath)) {
             // Pass filedescriptor to clamd (useful if clamd is running as a different user)
-            $pb->add('--fdpass');
-        } elseif ($this->databasePath !== null) {
+            $cmd[] = '--fdpass';
+        } elseif (null !== $this->databasePath) {
             // Only the (isolated) binary version can change the signature-database used
-            $pb->add(sprintf('--database=%s', $this->databasePath));
+            $cmd[] = sprintf('--database=%s', $this->databasePath);
         }
+        $cmd[] = $path;
 
-        $pb->add($path);
-
-        return $pb->getProcess();
+        return $cmd;
     }
 
     /**
@@ -93,6 +100,6 @@ class ClamAvAdapter extends AbstractAdapter
      */
     private function usesDaemon(string $path): bool
     {
-        return substr($path, -9) === 'clamdscan';
+        return 'clamdscan' === substr($path, -9);
     }
 }
